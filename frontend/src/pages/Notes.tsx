@@ -7,7 +7,6 @@ interface Note {
     title: string;
     content: string;
 }
-
 const Notes: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
     const [title, setTitle] = useState("");

@@ -1,16 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+    onLogout: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        setShowConfirm(true);
-    };
+    // Close profile dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node)
+            ) {
+                setShowProfileDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleLogout = () => setShowConfirm(true);
 
     const confirmLogout = () => {
-        localStorage.removeItem("token"); // or your logout logic
+        onLogout(); // Call parent's logout logic
         setShowConfirm(false);
         navigate("/login");
     };
@@ -19,25 +39,52 @@ const Navbar: React.FC = () => {
         <>
             <nav className="fixed top-0 left-0 w-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg z-10">
                 <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-                    {/* Logo / Brand */}
+                    {/* Logo */}
                     <Link to="/" className="text-2xl font-bold text-white drop-shadow-md">
                         📝 MyNotes
                     </Link>
 
                     {/* Links */}
-                    <div className="flex gap-6">
+                    <div className="flex gap-6 items-center relative">
                         <Link
                             to="/notes"
                             className="text-white/90 hover:text-yellow-300 font-medium transition"
                         >
                             Notes
                         </Link>
-                        <Link
-                            to="/profile"
-                            className="text-white/90 hover:text-yellow-300 font-medium transition"
-                        >
-                            Profile
-                        </Link>
+
+                        {/* Profile dropdown */}
+                        <div className="relative" ref={dropdownRef}>
+                            <button
+                                onClick={() =>
+                                    setShowProfileDropdown((prev) => !prev)
+                                }
+                                className="text-white/90 hover:text-yellow-300 font-medium transition cursor-pointer"
+                            >
+                                Profile
+                            </button>
+
+                            {showProfileDropdown && (
+                                <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg text-gray-800 z-20">
+                                    <Link
+                                        to="/profile"
+                                        className="block px-4 py-2 hover:bg-blue-100 transition"
+                                        onClick={() => setShowProfileDropdown(false)}
+                                    >
+                                        Your Profile
+                                    </Link>
+                                    <Link
+                                        to="/change-password"
+                                        className="block px-4 py-2 hover:bg-blue-100 transition"
+                                        onClick={() => setShowProfileDropdown(false)}
+                                    >
+                                        Change Password
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Logout */}
                         <button
                             onClick={handleLogout}
                             className="text-white/90 hover:text-yellow-300 font-medium transition cursor-pointer"

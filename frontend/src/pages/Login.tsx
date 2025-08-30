@@ -1,19 +1,32 @@
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
-import { assets } from '../assets/assets'
+import { assets } from "../assets/assets";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login: React.FC = () => {
+    const location = useLocation();
     const [state, setState] = useState<"Sign Up" | "Login">("Login");
+
+    useEffect(() => {
+        if (location.state?.mode === "SignUp") {
+            setState("Sign Up");
+            setMessage("Create your Account")
+        }
+        else {
+            setMessage("Login to your Account")
+        }
+    }, [location.state]);
+
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [message, setMessage] = useState("Create your Account");
 
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Handle submit (login or signup)
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -22,13 +35,18 @@ const Login: React.FC = () => {
                 login(res.data.token);
                 navigate("/notes");
             } else {
-                const res = await api.post("/users/signup", { name, email, password });
-                alert("Account created! Please login.");
-                setState("Login");
+
+                await api.post("/users/signup", { name, email, password });
+                await api.post("/users/request-otp", { email });
+                // Redirect to verify OTP page
+                navigate("/verify-gmail", { state: { email } });
             }
         } catch (err: any) {
-            alert(err.response?.data?.error || "Something went wrong");
+            setMessage(err.response?.data?.error || "Something went wrong");
         }
+        setEmail("");
+        setPassword("");
+        setName("");
     };
 
     return (
@@ -41,14 +59,17 @@ const Login: React.FC = () => {
                 alt="logo"
             />
 
-            <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm">
+            <div className="bg-slate-900 p-10 rounded-2xl shadow-2xl w-full sm:w-96 text-indigo-300 text-sm">
                 <h2 className="text-3xl font-semibold text-white text-center mb-3">
                     {state === "Sign Up" ? "Create Account" : "Login Account"}
                 </h2>
-                <p className="text-center text-sm">
-                    {state === "Sign Up"
-                        ? "Create your account"
-                        : "Login to your account"}
+                <p
+                    className={`text-center text-sm mb-6 ${message === "Create your Account" || message === "Login to your Account"
+                        ? "text-blue-200"
+                        : "text-red-400"
+                        }`}
+                >
+                    {message}
                 </p>
 
                 <form onSubmit={handleSubmit}>
@@ -95,7 +116,7 @@ const Login: React.FC = () => {
                     {state === "Login" && (
                         <p
                             onClick={() => navigate("/reset-password")}
-                            className="mb-4 text-indigo-500 cursor-pointer"
+                            className="mb-4 text-indigo-500 cursor-pointer hover:underline"
                         >
                             Forgot password?
                         </p>
@@ -103,18 +124,56 @@ const Login: React.FC = () => {
 
                     <button
                         type="submit"
-                        className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium"
+                        className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium shadow-md hover:opacity-90 transition"
+
                     >
                         {state === "Sign Up" ? "Create Account" : "Login Account"}
                     </button>
                 </form>
+
+                {/* Divider */}
+                <div className="flex items-center my-5">
+                    <hr className="flex-grow border-gray-600" />
+                    <span className="px-2 text-gray-400 text-xs">OR</span>
+                    <hr className="flex-grow border-gray-600" />
+                </div>
+
+                {/* Google Login */}
+                <div className="flex justify-center">
+                    <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                            try {
+                                const res = await api.post("/users/google-login", {
+                                    idToken: credentialResponse.credential,
+                                });
+                                login(res.data.token);
+                                navigate("/notes");
+                            } catch (err: any) {
+                                alert(err.response?.data?.error || "Google login failed");
+                            }
+                        }}
+                        onError={() => {
+                            alert("Google login failed");
+                        }}
+                        theme="filled_blue"   // ✅ changes background (blue button with white text)
+                        shape="pill"          // ✅ rounded pill style (optional)
+                        text={state === "Sign Up" ? "signup_with" : "signin_with"} // ✅ button text
+                        width="280"
+                    />
+
+                </div>
 
                 {/* Toggle login/signup */}
                 {state === "Sign Up" ? (
                     <p className="text-gray-400 text-center text-xs mt-4">
                         Already have an account?{" "}
                         <span
-                            onClick={() => setState("Login")}
+                            onClick={() => {
+                                setState("Login");
+                                setMessage("Login to your Account");
+                                setName("");
+                            }
+                            }
                             className="text-blue-400 cursor-pointer underline"
                         >
                             Login here
@@ -124,7 +183,11 @@ const Login: React.FC = () => {
                     <p className="text-gray-400 text-center text-xs mt-4">
                         Don’t have an account?{" "}
                         <span
-                            onClick={() => setState("Sign Up")}
+                            onClick={() => {
+                                setState("Sign Up")
+                                setMessage("Create your Account")
+                                setPassword("");
+                            }}
                             className="text-blue-400 cursor-pointer underline"
                         >
                             Sign up

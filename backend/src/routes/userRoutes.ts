@@ -1,6 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { signupUser, requestOtp, verifyOtp, loginUser } from "../dbOperations/userOperations";
+import { signupUser, requestOtp, verifyOtp, loginUser, validateToken, loginWithGoogle } from "../dbOperations/userOperations";
 
 const router = express.Router();
 
@@ -80,4 +80,33 @@ router.post("/login", async (req, res) => {
     }
 });
 
+// Validate token
+router.get("/validate-token", async (req, res) => {
+    try {
+        const authHeader = req.headers["authorization"];
+        if (!authHeader) return res.status(401).json({ error: "No token provided" });
+
+        const token = authHeader.split(" ")[1];
+        const user = await validateToken(token);
+
+        res.json({ valid: true, user });
+    } catch (err: any) {
+        res.status(401).json({ error: err.message });
+    }
+});
+
+
+// Google login/signup
+router.post("/google-login", async (req, res) => {
+    try {
+        const { idToken } = req.body;
+        if (!idToken) return res.status(400).json({ error: "Google token required" });
+
+        const { user, token } = await loginWithGoogle(idToken);
+
+        res.json({ message: "Google login successful", token, user });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
 export default router;

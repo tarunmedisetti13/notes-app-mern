@@ -2,6 +2,9 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User from "../models/userModel";
 import transporter from "../utils/email";
+import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 /**
  * Signup - create user (not verified yet)
  */
@@ -24,6 +27,45 @@ export const signupUser = async (email: string, name: string, password: string) 
 
   await user.save();
   return user;
+};
+
+
+/**
+ * Google login/signup
+ */
+export const loginWithGoogle = async (idToken: string) => {
+  const ticket = await client.verifyIdToken({
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+  if (!payload) throw new Error("Invalid Google token");
+
+  const { sub: googleId, email, name } = payload;
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    // create new Google user
+    user = new User({
+      email,
+      name,
+      provider: "google",
+      googleId,
+      isVerified: true, // Google users don’t need OTP
+    });
+    await user.save();
+  }
+
+  // generate app’s JWT
+  const token = jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_SECRET!,
+    { expiresIn: "7d" }
+  );
+
+  return { user, token };
 };
 
 /**
@@ -76,10 +118,31 @@ export const verifyOtp = async (email: string, otp: string) => {
 export const loginUser = async (email: string, password: string) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found");
+  // ✅ If user has no password stored, they signed up only via Google
+  if (!user.password) throw new Error("This account was created using Google. Please login with Google Sign-In.");
   if (!user.isVerified) throw new Error("User not verified");
 
   const isMatch = await bcrypt.compare(password, user.password!);
   if (!isMatch) throw new Error("Invalid password");
 
   return user;
+};
+
+/**
+ * Validate token
+ */
+export const validateToken = async (token: string) => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+      email: string;
+    };
+
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) throw new Error("User not found");
+
+    return user;
+  } catch (err) {
+    throw new Error("Invalid or expired token");
+  }
 };
