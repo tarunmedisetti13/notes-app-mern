@@ -2,8 +2,10 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User from "../models/userModel";
 import transporter from "../utils/email";
+import { AuthRequest } from "../middleware/auth";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 /**
  * Signup - create user (not verified yet)
@@ -28,6 +30,38 @@ export const signupUser = async (email: string, name: string, password: string) 
   await user.save();
   return user;
 };
+
+
+export const getCurrentUser = async (req: AuthRequest) => {
+  if (!req.user) throw new Error("Unauthorized");
+
+  const user = await User
+    .findById(req.user.id)
+    .select("name email createdAt");
+
+  if (!user) throw new Error("User not found");
+
+  return user;
+};
+
+// Change password logic
+export const changePassword = async (req: AuthRequest, currentPassword: string, newPassword: string) => {
+  if (!req.user) throw new Error("Unauthorized");
+
+  const user = await User.findById(req.user.id);
+  if (!user) throw new Error("User not found");
+  if (!user.password) throw new Error("User has no password set");
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) throw new Error("Current password is incorrect");
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  await user.save();
+
+  return "Password changed successfully";
+};
+
 
 
 /**

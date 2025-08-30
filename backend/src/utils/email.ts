@@ -1,10 +1,11 @@
 import nodemailer from 'nodemailer';
+import 'dotenv/config';
 const transporter = nodemailer.createTransport({
-    service: 'brevo', // or 'sendinblue' (old name)
+    service: process.env.SERVICE, // or 'sendinblue' (old name)
     auth: {
-        user: '95d034001@smtp-brevo.com', // hardcode temporarily for testing
-        pass: 'I7xQ2V3bXkYwdtPD' // hardcode temporarily for testing
-    }, authMethod: 'PLAIN' // Explicitly specify auth method
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+    }, authMethod: 'PLAIN'
 });
 
 // Test the connection

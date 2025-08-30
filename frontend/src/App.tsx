@@ -3,7 +3,9 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Notes from './pages/Notes';
 import WelcomeScreen from "./pages/WelcomeScreen";
-import VerifyGmail from "./pages/verifyGmail";
+import VerifyGmail from "./pages/VerifyGmail";
+import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
 function App() {
   return (
     <div>
@@ -13,6 +15,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/notes" element={<Notes />} />
         <Route path="/verify-gmail" element={<VerifyGmail />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </div>
   );

@@ -1,7 +1,11 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { signupUser, requestOtp, verifyOtp, loginUser, validateToken, loginWithGoogle } from "../dbOperations/userOperations";
-
+import {
+    signupUser, requestOtp, verifyOtp, loginUser,
+    validateToken, loginWithGoogle, getCurrentUser,
+    changePassword
+} from "../dbOperations/userOperations";
+import { authMiddleware } from "../middleware/auth";
 const router = express.Router();
 
 /**
@@ -18,6 +22,29 @@ router.post("/signup", async (req, res) => {
         res.json({ message: "Signup successful, please request OTP", userId: user._id });
     } catch (err: any) {
         res.status(400).json({ error: err.message });
+    }
+});
+// Get current logged-in user
+router.get("/me", authMiddleware, async (req, res) => {
+    try {
+        const user = await getCurrentUser(req);
+        res.json({ user });
+    } catch (err: any) {
+        res.status(err.message === "Unauthorized" ? 401 : 404).json({ error: err.message });
+    }
+});
+// Change password route
+router.post("/change-password", authMiddleware, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: "All fields required" });
+        }
+
+        const message = await changePassword(req, currentPassword, newPassword);
+        res.json({ message });
+    } catch (err: any) {
+        res.status(err.message === "Unauthorized" ? 401 : 400).json({ error: err.message });
     }
 });
 
