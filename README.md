@@ -1,4 +1,4 @@
-**📌 Todo List App (MERN + Google OAuth)
+**📌 Todo List App (MERN + Google OAuth) **
 A full-stack MERN application where users can manage their tasks with authentication (Email/Password + Google OAuth).
 Frontend is built with React (Vite, TypeScript, TailwindCSS) and deployed on Netlify.
 Backend is built with Node.js, Express, MongoDB and deployed on Render.
@@ -31,23 +31,3 @@ Frontend
   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Deployment
-
-Frontend → Netlify
-
-Backend → Render
-
-Database → MongoDB Atlas
