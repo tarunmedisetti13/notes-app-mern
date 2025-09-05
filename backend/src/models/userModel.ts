@@ -10,6 +10,10 @@ export interface IUser extends Document {
     dob?: Date;                    // date of birth (optional)
     otp?: string;                  // OTP for email verification
     otpExpiry?: Date;              // expiry timestamp for OTP
+
+    // 🔑 reset password fields
+    resetOtp?: string;
+    resetOtpExpiry?: Date;
 }
 
 const userSchema: Schema<IUser> = new Schema(
@@ -27,6 +31,10 @@ const userSchema: Schema<IUser> = new Schema(
         dob: { type: Date }, // date of birth
         otp: { type: String },
         otpExpiry: { type: Date },
+
+        // 🔑 reset password fields
+        resetOtp: { type: String },
+        resetOtpExpiry: { type: Date },
     },
     { timestamps: true }
 );

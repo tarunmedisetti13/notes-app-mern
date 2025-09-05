@@ -122,7 +122,7 @@ const Login: React.FC = () => {
 
                     {state === "Login" && (
                         <p
-                            onClick={() => navigate("/reset-password")}
+                            onClick={() => navigate("/forgot-password")}
                             className="text-indigo-400 text-xs cursor-pointer hover:underline text-right"
                         >
                             Forgot password?

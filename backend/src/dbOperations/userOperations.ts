@@ -118,8 +118,9 @@ export const requestOtp = async (email: string) => {
   const mailOptions = {
     from: process.env.SENDER_EMAIL,
     to: email,
-    subject: 'Welcome to MERN STACK',
-    text: `Welcome to Mern Stack field. You have just created the account with this email id: ${email}, otp:${otp}`
+    subject: 'Welcome to Notes App',
+    text: `Welcome to Mern Stack field. You have  account with this email id: ${email}, 
+    Here is your otp to verify your account:${otp}`
 
   }
   // ✅ Send OTP to email
@@ -145,6 +146,57 @@ export const verifyOtp = async (email: string, otp: string) => {
 
   return user;
 };
+
+// userOperations.ts
+export const requestPasswordResetOtp = async (email: string) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("User not found");
+
+  // if user registered only via Google
+  if (!user.password) throw new Error("This account was created using Google Sign-In");
+
+  const otp = crypto.randomInt(100000, 999999).toString();
+  user.resetOtp = otp;
+  user.resetOtpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
+  await user.save();
+
+  const mailOptions = {
+    from: process.env.SENDER_EMAIL,
+    to: email,
+    subject: "Reset Password OTP",
+    text: `Your OTP to reset password is: ${otp}`
+  };
+
+  await transporter.sendMail(mailOptions);
+  return true;
+};
+
+export const verifyPasswordResetOtp = async (email: string, otp: string) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("User not found");
+  if (!user.resetOtp) throw new Error("No reset request found");
+  if (user.resetOtp !== otp) throw new Error("Invalid OTP");
+  if (!user.resetOtpExpiry || user.resetOtpExpiry < new Date()) throw new Error("OTP expired");
+
+  // OTP is valid → clear it
+  user.resetOtp = undefined;
+  user.resetOtpExpiry = undefined;
+  await user.save();
+
+  return user;
+};
+
+export const resetPassword = async (email: string, newPassword: string) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("User not found");
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  await user.save();
+
+  return "Password updated successfully";
+};
+
 
 /**
  * Login

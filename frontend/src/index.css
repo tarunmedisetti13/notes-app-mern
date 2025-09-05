@@ -4,3 +4,34 @@
 * {
   font-family: "Outfit", sans-serif;
 }
+
+@keyframes jump {
+  0% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-80px);
+  }
+
+  /* Jump up */
+  60% {
+    transform: translateY(0);
+  }
+
+  /* Back down */
+  80% {
+    transform: translateY(-15px);
+  }
+
+  /* Small bounce */
+  100% {
+    transform: translateY(0);
+  }
+
+  /* Settle */
+}
+
+.animate-jump {
+  animation: jump 2s ease-out;
+}

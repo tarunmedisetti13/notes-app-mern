@@ -1,0 +1,61 @@
+// src/pages/ResetPassword.tsx
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import api from "../api/axios";
+
+const ResetPassword: React.FC = () => {
+    const [newPassword, setNewPassword] = useState("");
+    const [message, setMessage] = useState("Enter your new password");
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const email = (location.state as { email: string })?.email;
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) {
+            setMessage("Email not found. Restart reset flow.");
+            return;
+        }
+        setLoading(true);
+        try {
+            await api.post("/users/reset-password", { email, newPassword });
+            setMessage("Password reset successful! Redirecting...");
+            setTimeout(() => navigate("/login"), 1500);
+        } catch (err: any) {
+            setMessage(err.response?.data?.error || "Something went wrong");
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-400 to-blue-600 px-4">
+            <div className="bg-slate-900 p-6 sm:p-10 rounded-3xl shadow-2xl w-full max-w-sm text-indigo-300">
+                <h2 className="text-2xl font-semibold text-white text-center mb-2">Reset Password</h2>
+                <p className={`text-center text-sm mb-4 ${message.includes("successful") ? "text-green-400" : "text-red-400"}`}>
+                    {message}
+                </p>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <input
+                        type="password"
+                        placeholder="Enter new password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="px-4 py-2 rounded-full bg-[#333A5C] text-white outline-none"
+                        required
+                    />
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3 rounded-full bg-gradient-to-r from-green-500 to-blue-700 text-white font-medium shadow-lg hover:opacity-90 disabled:opacity-50"
+                    >
+                        {loading ? "Resetting..." : "Reset Password"}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default ResetPassword;

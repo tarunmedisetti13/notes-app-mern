@@ -29,7 +29,7 @@ const Notes: React.FC = () => {
         fetchNotes();
     }, []);
 
-    // Add new note
+    // Add new note  
     const addNote = async () => {
         if (!title || !content) return;
         const res = await api.post("/notes", { title, content });
