@@ -189,8 +189,8 @@ todo-list-app/
 ## 👨‍💻 Author
 
 **Tarun Medisetti**
-- GitHub: [@your-username](https://github.com/tarunmedisetti13)
-- Email: your.email@example.com
+- GitHub: [@Tarun-Medisetti](https://github.com/tarunmedisetti13)
+- Email: tarunmedisetti13@gmail.com
 
 ## 🙏 Acknowledgments
 
