@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 import {
     signupUser, requestOtp, verifyOtp, loginUser,
     validateToken, loginWithGoogle, getCurrentUser,
-    changePassword, resetPassword, requestPasswordResetOtp, verifyPasswordResetOtp
+    changePassword, resetPassword, requestPasswordResetOtp, verifyPasswordResetOtp,
+    forgotPasswordOTP
 } from "../dbOperations/userOperations";
 import { authMiddleware } from "../middleware/auth";
 const router = express.Router();
@@ -78,6 +79,23 @@ router.post("/change-password", authMiddleware, async (req, res) => {
         res.status(err.message === "Unauthorized" ? 401 : 400).json({ error: err.message });
     }
 });
+
+//Forgot Password route
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: 'Email Required' });
+        }
+        if (!email.endsWith('@gmail.com')) {
+            return res.status(400).json({ message: 'Please enter valid gmail address' });
+        }
+        await forgotPasswordOTP(email);
+        res.status(201).json({ message: `Reset Password OTP Sent to ${email}` });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error });
+    }
+})
 
 /**
  * Request OTP

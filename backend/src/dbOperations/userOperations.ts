@@ -62,7 +62,22 @@ export const changePassword = async (req: AuthRequest, currentPassword: string, 
   return "Password changed successfully";
 };
 
-
+export const forgotPasswordOTP = async (email: string) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("User not found");
+  const resetOtp = crypto.randomInt(100000, 999999).toString();
+  user.resetOtp = resetOtp;
+  user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+  await user.save();
+  const mailOptions = {
+    from: process.env.SENDER_EMAIL,
+    to: email,
+    subject: 'Reset Password for Notes App',
+    text: `Here is your reset password otp. Please enter in application to reset your password before it gets expire. OTP:${resetOtp}`
+  }
+  await transporter.sendMail(mailOptions);
+  return true;
+}
 
 /**
  * Google login/signup
