@@ -20,12 +20,25 @@ const ResetPassword: React.FC = () => {
         }
         setLoading(true);
         try {
-            await api.post("/users/reset-password", { email, newPassword });
-            setMessage("Password reset successful! Redirecting...");
+            const token = sessionStorage.getItem("token");
+            console.log("Reset token:", token);
+
+            const result = await api.post(
+                "/users/reset-password",
+                { email, newPassword },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setMessage(result.data.message);
             setTimeout(() => navigate("/login"), 1500);
         } catch (err: any) {
             setMessage(err.response?.data?.error || "Something went wrong");
         }
+
         setLoading(false);
     };
 

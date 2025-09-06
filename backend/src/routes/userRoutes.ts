@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import {
     signupUser, requestOtp, verifyOtp, loginUser,
     validateToken, loginWithGoogle, getCurrentUser,
-    changePassword, resetPassword, requestPasswordResetOtp, verifyPasswordResetOtp,
+    changePassword, resetPassword, verifyPasswordResetOtp,
     forgotPasswordOTP
 } from "../dbOperations/userOperations";
 import { authMiddleware } from "../middleware/auth";
@@ -35,20 +35,20 @@ router.get("/me", authMiddleware, async (req, res) => {
     }
 });
 
-router.post("/request-reset-otp", async (req, res) => {
-    try {
-        const { email } = req.body;
-        await requestPasswordResetOtp(email);
-        res.json({ message: "OTP sent to your email" });
-    } catch (err: any) {
-        res.status(400).json({ error: err.message });
-    }
-});
+// router.post("/request-reset-otp", async (req, res) => {
+//     try {
+//         const { email } = req.body;
+//         await requestPasswordResetOtp(email);
+//         res.json({ message: "OTP sent to your email" });
+//     } catch (err: any) {
+//         res.status(400).json({ error: err.message });
+//     }
+// });
 
 router.post("/verify-reset-otp", async (req, res) => {
     try {
-        const { email, otp } = req.body;
-        await verifyPasswordResetOtp(email, otp);
+        const { email, resetOtp } = req.body;
+        await verifyPasswordResetOtp(email, resetOtp);
         res.json({ message: "OTP verified, you can reset password now" });
     } catch (err: any) {
         res.status(400).json({ error: err.message });

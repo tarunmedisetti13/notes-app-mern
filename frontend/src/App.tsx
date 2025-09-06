@@ -7,6 +7,8 @@ import VerifyGmail from "./pages/VerifyGmail";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import VerifyResetOtp from "./pages/VerifyResetOtp";
+import ResetPassword from "./pages/ResetPassword";
 function App() {
   return (
     <div>
@@ -19,6 +21,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </div>
   );

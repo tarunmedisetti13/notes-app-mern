@@ -67,7 +67,7 @@ export const forgotPasswordOTP = async (email: string) => {
   if (!user) throw new Error("User not found");
   const resetOtp = crypto.randomInt(100000, 999999).toString();
   user.resetOtp = resetOtp;
-  user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+  user.resetOtpExpiry = new Date(Date.now() + 5 * 60 * 1000);
   await user.save();
   const mailOptions = {
     from: process.env.SENDER_EMAIL,
@@ -163,42 +163,46 @@ export const verifyOtp = async (email: string, otp: string) => {
 };
 
 // userOperations.ts
-export const requestPasswordResetOtp = async (email: string) => {
-  const user = await User.findOne({ email });
-  if (!user) throw new Error("User not found");
+// export const requestPasswordResetOtp = async (email: string) => {
+//   const user = await User.findOne({ email });
+//   if (!user) throw new Error("User not found");
 
-  // if user registered only via Google
-  if (!user.password) throw new Error("This account was created using Google Sign-In");
+//   // if user registered only via Google
+//   if (!user.password) throw new Error("This account was created using Google Sign-In");
 
-  const otp = crypto.randomInt(100000, 999999).toString();
-  user.resetOtp = otp;
-  user.resetOtpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
-  await user.save();
+//   const otp = crypto.randomInt(100000, 999999).toString();
+//   user.resetOtp = otp;
+//   user.resetOtpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
+//   await user.save();
 
-  const mailOptions = {
-    from: process.env.SENDER_EMAIL,
-    to: email,
-    subject: "Reset Password OTP",
-    text: `Your OTP to reset password is: ${otp}`
-  };
+//   const mailOptions = {
+//     from: process.env.SENDER_EMAIL,
+//     to: email,
+//     subject: "Reset Password OTP",
+//     text: `Your OTP to reset password is: ${otp}`
+//   };
 
-  await transporter.sendMail(mailOptions);
-  return true;
-};
+//   await transporter.sendMail(mailOptions);
+//   return true;
+// };
 
-export const verifyPasswordResetOtp = async (email: string, otp: string) => {
+export const verifyPasswordResetOtp = async (email: string, resetOtp: string) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found");
   if (!user.resetOtp) throw new Error("No reset request found");
-  if (user.resetOtp !== otp) throw new Error("Invalid OTP");
+  if (user.resetOtp !== resetOtp) throw new Error("Invalid OTP");
   if (!user.resetOtpExpiry || user.resetOtpExpiry < new Date()) throw new Error("OTP expired");
-
   // OTP is valid → clear it
   user.resetOtp = undefined;
   user.resetOtpExpiry = undefined;
   await user.save();
 
-  return user;
+  const token = jwt.sign(
+    { email: user.email },
+    process.env.JWT_SECRET!,
+    { expiresIn: "10m" } // 10 minutes validity
+  );
+  return token;
 };
 
 export const resetPassword = async (email: string, newPassword: string) => {

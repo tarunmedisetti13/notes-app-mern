@@ -1,22 +1,23 @@
 // src/pages/VerifyResetOtp.tsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
-import { assets } from "../assets/assets";
-
 const VerifyResetOtp: React.FC = () => {
-    const [email, setEmail] = useState("");
-    const [otp, setOtp] = useState("");
+    const location = useLocation();
+    const { email } = location.state || {};
+    const [resetOtp, setResetOtp] = useState("");
     const [message, setMessage] = useState("Enter OTP sent to your email");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post("/users/verify-reset-otp", { email, otp });
-            setMessage("OTP verified! Set your new password.");
+            const result = await api.post("/users/verify-reset-otp", { email, resetOtp });
+            if (result.data.token) {
+                setMessage(result.data.message);
+                sessionStorage.put('token', result.data.token);
+            }
             setTimeout(() => navigate("/reset-password", { state: { email } }), 1000);
         } catch (err: any) {
             setMessage(err.response?.data?.error || "Invalid OTP");
@@ -33,18 +34,10 @@ const VerifyResetOtp: React.FC = () => {
                 </p>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <input
-                        type="email"
-                        placeholder="Enter email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="px-4 py-2 rounded-full bg-[#333A5C] text-white outline-none"
-                        required
-                    />
-                    <input
                         type="text"
                         placeholder="Enter OTP"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
+                        value={resetOtp}
+                        onChange={(e) => setResetOtp(e.target.value)}
                         className="px-4 py-2 rounded-full bg-[#333A5C] text-white outline-none"
                         required
                     />

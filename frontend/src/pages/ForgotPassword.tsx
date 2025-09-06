@@ -14,9 +14,10 @@ const ForgotPassword: React.FC = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post("/users/forgot-password", { email });
-            setMessage("Password reset link sent to your email!");
+            const result = await api.post("/users/forgot-password", { email });
+            setMessage(result.data.message);
             setEmail("");
+            navigate('/verify-reset-otp', { state: { email } });
         } catch (err: any) {
             setMessage(err.response?.data?.error || "Something went wrong");
         }
@@ -40,10 +41,10 @@ const ForgotPassword: React.FC = () => {
                 </h2>
                 <p
                     className={`text-center text-sm mb-4 sm:mb-6 ${message.includes("sent")
-                            ? "text-green-400"
-                            : message.includes("wrong")
-                                ? "text-red-400"
-                                : "text-blue-200"
+                        ? "text-green-400"
+                        : message.includes("wrong")
+                            ? "text-red-400"
+                            : "text-blue-200"
                         }`}
                 >
                     {message}
@@ -62,7 +63,6 @@ const ForgotPassword: React.FC = () => {
                             required
                         />
                     </div>
-
                     <button
                         type="submit"
                         disabled={loading}
