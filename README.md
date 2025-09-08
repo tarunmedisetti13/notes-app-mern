@@ -14,7 +14,6 @@ This application provides users with a seamless task management experience, comb
 - **Multi-modal Authentication**: Email/Password registration and Google OAuth integration
 - **JWT Token Management**: Secure session handling with refresh tokens
 - **Password Recovery**: Email-based password reset functionality via Nodemailer
-- **Protected Routes**: Role-based access control for secure data access
 
 ### Task Management
 - **Full CRUD Operations**: Create, read, update, and delete tasks
