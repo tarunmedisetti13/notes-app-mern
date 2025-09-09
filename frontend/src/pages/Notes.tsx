@@ -3,6 +3,7 @@ import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import { FaPlus } from "react-icons/fa";
 import { FaTrash, FaEdit } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 interface Note {
     _id: string;
     title: string;
@@ -10,6 +11,7 @@ interface Note {
 }
 
 const Notes: React.FC = () => {
+    const navigate = useNavigate();
     const [notes, setNotes] = useState<Note[]>([]);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -19,7 +21,7 @@ const Notes: React.FC = () => {
     const [confirmMessage, setConfirmMessage] = useState("");
     const [confirmAction, setConfirmAction] = useState<() => void>(() => { });
     const [showAddModal, setShowAddModal] = useState(false);
-
+    const [unauthorized, setUnauthorized] = useState(false);
     // Fetch notes
     useEffect(() => {
         const fetchNotes = async () => {
@@ -32,6 +34,12 @@ const Notes: React.FC = () => {
     // Add new note  
     const addNote = async () => {
         if (!title || !content) return;
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setUnauthorized(true);
+            setShowAddModal(false);
+            return;
+        }
         const res = await api.post("/notes", { title, content });
         setNotes([res.data.note, ...notes]);
         setTitle("");
@@ -237,6 +245,29 @@ const Notes: React.FC = () => {
                             </button>
                             <button
                                 onClick={() => setShowConfirmModal(false)}
+                                className="bg-gray-400 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/*handling unauthorized access */}
+            {unauthorized && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-[#333A5C] text-white rounded-2xl p-6 shadow-lg w-80 text-center mx-2">
+                        <p className="mb-4">Please Login to Continue</p>
+                        <div className="flex justify-center gap-4">
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="bg-blue-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                            >
+                                Login
+                            </button>
+                            <button
+                                onClick={() => setUnauthorized(false)}
                                 className="bg-gray-400 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
                             >
                                 Cancel

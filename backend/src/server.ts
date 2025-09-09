@@ -9,12 +9,6 @@ dotenv.config();
 
 const app = express();
 
-// Debugging environment vars (remove in production)
-console.log("Environment check:");
-console.log("SMTP_USER:", process.env.SMTP_USER);
-console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD);
-console.log("SENDER_EMAIL:", process.env.SENDER_EMAIL);
-
 // Middlewares
 app.use(cors());
 app.use(express.json());

@@ -69,13 +69,29 @@ export const forgotPasswordOTP = async (email: string) => {
   user.resetOtp = resetOtp;
   user.resetOtpExpiry = new Date(Date.now() + 5 * 60 * 1000);
   await user.save();
+
   const mailOptions = {
     from: process.env.SENDER_EMAIL,
     to: email,
-    subject: 'Reset Password for Notes App',
-    text: `Here is your reset password otp. Please enter in application to reset your password before it gets expire. OTP:${resetOtp}`
-  }
+    subject: 'Reset Your Password – Notes App',
+    text: `Hello,
+
+We received a request to reset the password for your Notes App account linked to this email: ${email}.
+
+Please use the OTP below to reset your password:
+
+🔑 OTP: ${resetOtp}
+
+For security reasons, this code will expire shortly.  
+If you did not request a password reset, you can safely ignore this email and your account will remain secure.
+
+Thank you,  
+The Notes App Team
+`,
+  };
+
   await transporter.sendMail(mailOptions);
+
   return true;
 }
 
@@ -133,13 +149,28 @@ export const requestOtp = async (email: string) => {
   const mailOptions = {
     from: process.env.SENDER_EMAIL,
     to: email,
-    subject: 'Welcome to Notes App',
-    text: `Welcome to Mern Stack field. You have  account with this email id: ${email}, 
-    Here is your otp to verify your account:${otp}`
+    subject: 'Welcome to Notes App – Verify Your Email',
+    text: `Hello,
 
-  }
-  // ✅ Send OTP to email
+Welcome to the Notes App! 🎉  
+
+We’re excited to have you join our community.  
+Your account has been created using this email: ${email}.
+
+To complete your registration, please verify your account using the OTP below:
+
+🔑 OTP: ${otp}
+
+This code will expire shortly, so please use it as soon as possible.  
+
+If you did not sign up for this account, please ignore this email.
+
+Thank you,  
+The Notes App Team
+`,
+  };
   await transporter.sendMail(mailOptions);
+
   return true;
   // don’t return otp anymore (only for debugging before)
 };

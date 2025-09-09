@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
-
+import { assets } from "../assets/assets";
 const ResetPassword: React.FC = () => {
     const [newPassword, setNewPassword] = useState("");
     const [message, setMessage] = useState("Enter your new password");
@@ -20,8 +20,8 @@ const ResetPassword: React.FC = () => {
         }
         setLoading(true);
         try {
-            const token = sessionStorage.getItem("token");
-            console.log("Reset token:", token);
+            const token = localStorage.getItem("token");
+            // console.log("Reset token:", token);
 
             const result = await api.post(
                 "/users/reset-password",
@@ -32,8 +32,8 @@ const ResetPassword: React.FC = () => {
                     },
                 }
             );
-
             setMessage(result.data.message);
+            localStorage.clear();
             setTimeout(() => navigate("/login"), 1500);
         } catch (err: any) {
             setMessage(err.response?.data?.error || "Something went wrong");
@@ -44,9 +44,15 @@ const ResetPassword: React.FC = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-400 to-blue-600 px-4">
+            <img
+                onClick={() => navigate("/home")}
+                className="absolute left-4 sm:left-20 top-4 w-24 sm:w-32 cursor-pointer"
+                src={assets.logo}
+                alt="logo"
+            />
             <div className="bg-slate-900 p-6 sm:p-10 rounded-3xl shadow-2xl w-full max-w-sm text-indigo-300">
                 <h2 className="text-2xl font-semibold text-white text-center mb-2">Reset Password</h2>
-                <p className={`text-center text-sm mb-4 ${message.includes("successful") ? "text-green-400" : "text-red-400"}`}>
+                <p className={`text-center text-sm mb-4 ${message.includes('Enter') ? 'text-blue-200' : message.includes("successful") ? "text-green-400" : "text-red-400"}}`}>
                     {message}
                 </p>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
