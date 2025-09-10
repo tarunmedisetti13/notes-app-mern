@@ -48,8 +48,8 @@ router.get("/me", authMiddleware, async (req, res) => {
 router.post("/verify-reset-otp", async (req, res) => {
     try {
         const { email, resetOtp } = req.body;
-        const token=await verifyPasswordResetOtp(email, resetOtp);
-        res.json({ message: "OTP verified, you can reset password now" ,token:token});
+        const token = await verifyPasswordResetOtp(email, resetOtp);
+        res.json({ message: "OTP verified, you can reset password now", token: token });
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }

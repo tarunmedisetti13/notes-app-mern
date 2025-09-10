@@ -2,20 +2,33 @@ import { assets } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
 import { useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
-
+import api from '../api/axios'
 const Header = () => {
     const navigate = useNavigate()
     const { token } = useContext(AuthContext)   //  check login state
 
-    const handleGetStarted = () => {
+    const handleGetStarted = async () => {
         if (token) {
-            // already logged in → go to notes
-            navigate('/notes')
+            try {
+                await api.get("/users/validate-token", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                // if valid
+                navigate("/notes");
+            } catch (err: any) {
+                if (err.response?.status === 401) {
+                    localStorage.clear();
+                    navigate("/login");
+                } else {
+                    console.error("Unexpected error:", err);
+                }
+            }
         } else {
-            // not logged in → open signup page (not login)
-            navigate('/login', { state: { mode: "SignUp" } })
+            navigate("/login", { state: { mode: "SignUp" } });
         }
-    }
+    };
+
 
     return (
         <div className='flex flex-col items-center mt-2 px-4 text-center text-gray-800'>
