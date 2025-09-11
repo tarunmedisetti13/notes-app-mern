@@ -17,12 +17,18 @@ const Profile: React.FC = () => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            if (!token) return;
+            if (!token)
+                navigate('/login');
             try {
                 const res = await api.get("/users/me");
                 setUser(res.data.user);
-            } catch (err) {
-                console.error(err);
+            } catch (err: any) {
+                if (err.response?.status === 401) {
+                    localStorage.clear();
+                    navigate("/login");
+                } else {
+                    console.error("Unexpected error:", err);
+                }
             }
         };
         fetchUser();

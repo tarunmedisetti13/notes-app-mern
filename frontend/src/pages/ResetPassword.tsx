@@ -22,7 +22,6 @@ const ResetPassword: React.FC = () => {
         try {
             const token = localStorage.getItem("token");
             // console.log("Reset token:", token);
-
             const result = await api.post(
                 "/users/reset-password",
                 { email, newPassword },
@@ -36,6 +35,10 @@ const ResetPassword: React.FC = () => {
             localStorage.clear();
             setTimeout(() => navigate("/login"), 1500);
         } catch (err: any) {
+            if (err.response?.status === 401) {
+                localStorage.clear();
+                navigate("/login");
+            }
             setMessage(err.response?.data?.error || "Something went wrong");
         }
 

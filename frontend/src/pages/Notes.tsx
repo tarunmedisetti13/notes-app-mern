@@ -25,8 +25,19 @@ const Notes: React.FC = () => {
     // Fetch notes
     useEffect(() => {
         const fetchNotes = async () => {
-            const res = await api.get("/notes");
-            setNotes(res.data.notes);
+            try {
+                const res = await api.get("/notes");
+                setNotes(res.data.notes);
+            }
+            catch (err: any) {
+                if (err.response?.status === 401) {
+                    localStorage.clear();
+                    navigate("/login");
+                } else {
+                    console.error("Unexpected error:", err);
+                }
+            }
+
         };
         fetchNotes();
     }, []);

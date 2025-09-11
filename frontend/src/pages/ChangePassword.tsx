@@ -1,10 +1,12 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword: React.FC = () => {
+    const navigate = useNavigate();
     const { logout } = useContext(AuthContext);
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -24,6 +26,7 @@ const ChangePassword: React.FC = () => {
     };
 
     const handleChangePassword = async () => {
+
         setError(null);
         setMessage(null);
 
@@ -48,6 +51,9 @@ const ChangePassword: React.FC = () => {
             setNewPassword("");
             setConfirmPassword("");
         } catch (err: any) {
+            if (err.response?.status === 401) {
+                navigate('/login');
+            }
             const backendError = err.response?.data?.error;
             if (backendError === "User has no password set") {
                 setError(null);
@@ -61,6 +67,12 @@ const ChangePassword: React.FC = () => {
             setLoading(false);
         }
     };
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+        }
+    }, []);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-400 to-purple-500 pt-16">
