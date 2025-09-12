@@ -65,7 +65,7 @@ const VerifyResetOtp: React.FC = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-700 text-white font-medium shadow-lg hover:opacity-90 disabled:opacity-50"
+                        className="w-full py-3 cursor-pointer rounded-full bg-gradient-to-r from-pink-500 to-purple-700 text-white font-medium shadow-lg hover:opacity-90 disabled:opacity-50"
                     >
                         {loading ? "Verifying..." : "Verify OTP"}
                     </button>

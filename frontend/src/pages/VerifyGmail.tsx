@@ -75,7 +75,7 @@ const VerifyGmail: React.FC = () => {
                 <button
                     onClick={handleVerify}
                     disabled={loading}
-                    className="w-full py-3 mb-2 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium shadow-md hover:opacity-90 transition text-sm sm:text-base"
+                    className="w-full py-3 mb-2 rounded-full cursor-pointer bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium shadow-md hover:opacity-90 transition text-sm sm:text-base"
                 >
                     {loading ? "Verifying..." : "Verify"}
                 </button>
@@ -83,7 +83,7 @@ const VerifyGmail: React.FC = () => {
                 <button
                     onClick={handleResend}
                     disabled={loading}
-                    className="w-full py-3 mb-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 text-white font-medium shadow-md hover:opacity-90 transition text-sm sm:text-base"
+                    className="w-full py-3 mb-2 rounded-full bg-gradient-to-r cursor-pointer from-purple-500 to-pink-600 text-white font-medium shadow-md hover:opacity-90 transition text-sm sm:text-base"
                 >
                     {loading ? "Resending..." : "Resend OTP"}
                 </button>

@@ -70,7 +70,7 @@ const ResetPassword: React.FC = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 rounded-full bg-gradient-to-r from-green-500 to-blue-700 text-white font-medium shadow-lg hover:opacity-90 disabled:opacity-50"
+                        className="w-full py-3 rounded-full bg-gradient-to-r from-green-500 to-blue-700 text-white font-medium shadow-lg cursor-pointer hover:opacity-90 disabled:opacity-50"
                     >
                         {loading ? "Resetting..." : "Reset Password"}
                     </button>

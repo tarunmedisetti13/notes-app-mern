@@ -96,7 +96,7 @@ const ChangePassword: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => togglePassword("current")}
-                            className="absolute right-3 top-3 text-gray-600"
+                            className="cursor-pointer absolute right-3 top-3 text-gray-600"
                         >
                             {currentPassword ? (
                                 showPassword.current ? <FaEyeSlash /> : <FaEye />
@@ -116,7 +116,7 @@ const ChangePassword: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => togglePassword("new")}
-                            className="absolute right-3 top-3 text-gray-600"
+                            className="cursor-pointer absolute right-3 top-3 text-gray-600"
                         >
                             {newPassword ? (showPassword.new ? <FaEyeSlash /> : <FaEye />) : null}
                         </button>
@@ -134,7 +134,7 @@ const ChangePassword: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => togglePassword("confirm")}
-                            className="absolute right-3 top-3 text-gray-600"
+                            className="absolute right-3 top-3 text-gray-600 cursor-pointer"
                         >
                             {confirmPassword
                                 ? showPassword.confirm
@@ -150,7 +150,7 @@ const ChangePassword: React.FC = () => {
                     <button
                         onClick={handleChangePassword}
                         disabled={loading}
-                        className="w-full bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition shadow-md text-sm sm:text-base"
+                        className="cursor-pointer w-full bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition shadow-md text-sm sm:text-base"
                     >
                         {loading ? "Changing..." : "Change Password"}
                     </button>
